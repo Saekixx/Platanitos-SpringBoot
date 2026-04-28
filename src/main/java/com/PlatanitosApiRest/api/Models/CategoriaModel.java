@@ -27,7 +27,7 @@ public class CategoriaModel {
     private String descripcion;
 
     @ManyToOne
-    @JoinColumn(name = "idSeccion")
+    @JoinColumn(name = "idSeccion", referencedColumnName = "id")
     @Getter @Setter
     private SeccionModel seccion;
 }

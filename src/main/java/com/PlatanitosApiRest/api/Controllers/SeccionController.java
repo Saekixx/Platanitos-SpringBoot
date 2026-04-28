@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class SeccionController {
     @Autowired private SeccionService seccionService;
 
-    @GetMapping("")
+    @GetMapping()
     public ResponseEntity<StandarResponse<List<SeccionModel>>> allSeccion() {
         List<SeccionModel> secciones = seccionService.getAllSecciones();
 

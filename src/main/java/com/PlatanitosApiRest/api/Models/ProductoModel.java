@@ -36,7 +36,7 @@ public class ProductoModel {
     @Column @Getter @Setter
     private Boolean isActive;
 
-    @Column @Getter @Setter
+    @Column(name = "imgUrl") @Getter @Setter
     private String imagenUrl;
 
     @ManyToOne
