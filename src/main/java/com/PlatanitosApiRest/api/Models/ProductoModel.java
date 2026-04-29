@@ -31,10 +31,10 @@ public class ProductoModel {
     private Integer stock;
 
     @Column @Getter @Setter
-    private Boolean isFavorite;
+    private Boolean isFavorite = false;
 
     @Column @Getter @Setter
-    private Boolean isActive;
+    private Boolean isActive = true;
 
     @Column(name = "imgUrl") @Getter @Setter
     private String imagenUrl;
@@ -42,15 +42,15 @@ public class ProductoModel {
     @ManyToOne
     @JoinColumn(name = "idCategoria")
     @Getter @Setter
-    private CategoriaModel idCategoria;
+    private CategoriaModel Categoria;
 
     @ManyToOne
     @JoinColumn(name = "idMarca")
     @Getter @Setter
-    private MarcaModel idMarca;
+    private MarcaModel Marca;
 
     @ManyToOne
     @JoinColumn(name = "idTalla")
     @Getter @Setter
-    private TallaModel idTalla;
+    private TallaModel Talla;
 }

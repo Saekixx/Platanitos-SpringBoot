@@ -25,23 +25,31 @@ public class SeccionController {
 
     @GetMapping()
     public ResponseEntity<StandarResponse<List<SeccionModel>>> allSeccion() {
-        List<SeccionModel> secciones = seccionService.getAllSecciones();
+        try {
+            List<SeccionModel> secciones = seccionService.getAllSecciones();
 
-        String msg = secciones.isEmpty() ? "No se encontraron secciones" : "Secciones obtenidas exitosamente";
+            StandarResponse<List<SeccionModel>> response = new StandarResponse<>(
+                200,
+                "Secciones obtenidas exitosamente",
+                secciones
+            );
 
-        StandarResponse<List<SeccionModel>> response = new StandarResponse<List<SeccionModel>>(
-            200,
-            msg,
-            secciones
-        );
-
-        return ResponseEntity.status(200).body(response);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            StandarResponse<List<SeccionModel>> errorResponse = new StandarResponse<>(
+                500,
+                "Error al obtener las secciones: " + e.getMessage(),
+                null
+            );
+            return ResponseEntity.status(500).body(errorResponse);
+        }
     }
     
 
     @PostMapping()
     public ResponseEntity<StandarResponse<SeccionModel>> createSeccion(@RequestBody SeccionModel data) {
-        SeccionModel seccion = seccionService.saveSeccion(data);
+        try {
+            SeccionModel seccion = seccionService.saveSeccion(data);
 
         StandarResponse<SeccionModel> response = new StandarResponse<SeccionModel>(
             201,
@@ -49,21 +57,37 @@ public class SeccionController {
             seccion
         );
         
-        
         return ResponseEntity.status(201).body(response);
+        } catch (RuntimeException e) {
+            StandarResponse<SeccionModel> errorResponse = new StandarResponse<>(
+                400,
+                "Error al crear la sección: " + e.getMessage(),
+                null
+            );
+            return ResponseEntity.status(400).body(errorResponse);
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<StandarResponse<SeccionModel>> editarSeccion(@PathVariable String id, @RequestBody SeccionModel data) {
-        SeccionModel seccion = seccionService.updateSeccion(id, data);
-        
+        try {
+            SeccionModel seccion = seccionService.updateSeccion(id, data);
+
         StandarResponse<SeccionModel> response = new StandarResponse<SeccionModel>(
             200,
             "Sección actualizada exitosamente",
             seccion
         );
-
+        
         return ResponseEntity.status(200).body(response);
+        } catch (RuntimeException e) {
+            StandarResponse<SeccionModel> errorResponse = new StandarResponse<>(
+                404,
+                "Error al actualizar la sección: " + e.getMessage(),
+                null
+            );
+            return ResponseEntity.status(404).body(errorResponse);
+        }
     }
 
 }

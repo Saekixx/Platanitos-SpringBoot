@@ -26,43 +26,68 @@ public class CategoriaController {
 
     @GetMapping()
     public ResponseEntity<StandarResponse<List<CategoriaModel>>> allCategorias() {
-        List<CategoriaModel> categorias = categoriaService.getAllCategorias();
+        try {
+            List<CategoriaModel> categorias = categoriaService.getAllCategorias();
 
-        String msg = categorias.isEmpty() ? "No se encontraron categorías" : "Categorías obtenidas exitosamente";
+            StandarResponse<List<CategoriaModel>> response = new StandarResponse<>(
+                200,
+                "Categorías obtenidas exitosamente",
+                categorias
+            );
 
-        StandarResponse<List<CategoriaModel>> response = new StandarResponse<List<CategoriaModel>>(
-            200,
-            msg,
-            categorias
-        );
-
-        return ResponseEntity.status(200).body(response);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            StandarResponse<List<CategoriaModel>> errorResponse = new StandarResponse<>(
+                500,
+                "Error al obtener las categorías: " + e.getMessage(),
+                null
+            );
+            return ResponseEntity.status(500).body(errorResponse);
+        }
     }
 
     @PostMapping()
     public ResponseEntity<StandarResponse<CategoriaModel>> createCategoria(@RequestBody CategoriaRequestDTO data) {
-        CategoriaModel categoria = categoriaService.saveCategoria(data);
+        try {
+            CategoriaModel categoria = categoriaService.saveCategoria(data);
 
-        StandarResponse<CategoriaModel> response = new StandarResponse<>(
-            201,
-            "Categoría creada exitosamente",
-            categoria
-        );
-        
-        return ResponseEntity.status(201).body(response);
+            StandarResponse<CategoriaModel> response = new StandarResponse<>(
+                201,
+                "Categoría creada exitosamente",
+                categoria
+            );
+            
+            return ResponseEntity.status(201).body(response);
+        } catch (RuntimeException e) {
+            StandarResponse<CategoriaModel> errorResponse = new StandarResponse<>(
+                400,
+                e.getMessage(),
+                null
+            );
+            return ResponseEntity.status(400).body(errorResponse);
+        }
     }
     
     @PutMapping("/{id}")
     public ResponseEntity<StandarResponse<CategoriaModel>> editarCategoria(@PathVariable String id, @RequestBody CategoriaRequestDTO data ) {
-        CategoriaModel categoria = categoriaService.updateCategoria(id, data);
-        
-        StandarResponse<CategoriaModel> response = new StandarResponse<>(
-            200,
-            "Categoría actualizada exitosamente",
-            categoria
-        );
-            
-        return ResponseEntity.status(200).body(response);
+        try {
+            CategoriaModel categoriaActualizada = categoriaService.updateCategoria(id, data);
+
+            StandarResponse<CategoriaModel> response = new StandarResponse<>(
+                200,
+                "Categoría actualizada exitosamente",
+                categoriaActualizada
+            );
+
+            return ResponseEntity.status(200).body(response);
+        } catch (RuntimeException e) {
+            StandarResponse<CategoriaModel> errorResponse = new StandarResponse<>(
+                404,
+                e.getMessage(),
+                null
+            );
+            return ResponseEntity.status(404).body(errorResponse);
+        }
 
     }
 }

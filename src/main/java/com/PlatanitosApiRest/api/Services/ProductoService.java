@@ -5,102 +5,84 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.PlatanitosApiRest.api.DTO.Producto.ProductoRequestDTO;
 import com.PlatanitosApiRest.api.Models.ProductoModel;
+import com.PlatanitosApiRest.api.Repositories.ICategoriaRepository;
+import com.PlatanitosApiRest.api.Repositories.IMarcaRepository;
 import com.PlatanitosApiRest.api.Repositories.IProductoRepository;
+import com.PlatanitosApiRest.api.Repositories.ITallaRepository;
 
 @Service
 public class ProductoService {
     @Autowired private IProductoRepository productoRepository;
+    @Autowired private ICategoriaRepository categoriaRepository;
+    @Autowired private ITallaRepository tallaRepository;
+    @Autowired private IMarcaRepository marcaRepository;
 
     public List<ProductoModel> getAllProductos() {
         return productoRepository.findAll();
     }
 
     public ProductoModel getProducto(String id){
-        ProductoModel marca = productoRepository.findById(Long.parseLong(id))
-        .orElseThrow(() -> new RuntimeException("No se encontró la marca con ID: " + id));
-
-        return marca;
-    }
-
-    public ProductoModel saveProducto(ProductoModel data) {
-        if(data.getNombre() == null || data.getNombre().isEmpty()) 
-            throw new RuntimeException("El nombre del producto es obligatorio");
-
-        if(data.getDescripcion() == null || data.getDescripcion().isEmpty())
-            throw new RuntimeException("La descripción del producto es obligatoria");
-
-        if(data.getPrecio() == null || data.getPrecio() <= 0)
-            throw new RuntimeException("El precio del producto es obligatorio y debe ser mayor a 0");
-
-        if(data.getIdCategoria() == null)
-            throw new RuntimeException("El ID de la categoría del producto es obligatoria");
-
-        if(data.getIdMarca() == null)
-            throw new RuntimeException("El ID de la marca del producto es obligatoria");
-
-        ProductoModel newProducto = new ProductoModel();
-        newProducto.setNombre(data.getNombre());
-        newProducto.setDescripcion(data.getDescripcion());
-        newProducto.setPrecio(data.getPrecio());
-        newProducto.setStock(data.getStock() != null ? data.getStock() : 0);
-        newProducto.setIsFavorite(data.getIsFavorite() != null ? data.getIsFavorite() : false);
-        newProducto.setIsActive(data.getIsActive() != null ? data.getIsActive() : true);
-        newProducto.setImagenUrl(data.getImagenUrl() != null ? data.getImagenUrl() : null);
-        newProducto.setIdCategoria(data.getIdCategoria());
-        newProducto.setIdMarca(data.getIdMarca());
-        newProducto.setIdTalla(data.getIdTalla() != null ? data.getIdTalla() : null);
-
-        return productoRepository.save(newProducto);
-    }
-
-    public ProductoModel updateProducto(String id, ProductoModel data) {
-        ProductoModel existingProducto = productoRepository.findById(Long.parseLong(id))
+        ProductoModel producto = productoRepository.findById(Long.parseLong(id))
         .orElseThrow(() -> new RuntimeException("No se encontró el producto con ID: " + id));
 
-        if (data.getNombre() != null && !data.getNombre().isEmpty()) 
-            existingProducto.setNombre(data.getNombre());
-        
-        if (data.getDescripcion() != null && !data.getDescripcion().isEmpty()) 
-            existingProducto.setDescripcion(data.getDescripcion());
-        
-        if (data.getPrecio() != null && data.getPrecio() > 0) 
-            existingProducto.setPrecio(data.getPrecio());
-        
-        if (data.getStock() != null) 
-            existingProducto.setStock(data.getStock());
-        
-        if (data.getIsFavorite() != null) 
-            existingProducto.setIsFavorite(data.getIsFavorite());
-        
-        if (data.getIsActive() != null) 
-            existingProducto.setIsActive(data.getIsActive());
-        
-        if (data.getImagenUrl() != null && !data.getImagenUrl().isEmpty()) 
-            existingProducto.setImagenUrl(data.getImagenUrl());
-        
-        if (data.getIdCategoria() != null) 
-            existingProducto.setIdCategoria(data.getIdCategoria());
-        
-        if (data.getIdMarca() != null) 
-            existingProducto.setIdMarca(data.getIdMarca());
-        
-        if (data.getIdTalla() != null) 
-            existingProducto.setIdTalla(data.getIdTalla());
-
-        return productoRepository.save(existingProducto);
+        return producto;
     }
 
-    public ProductoModel isActiveProducto(String id) {
-        ProductoModel existingProducto = productoRepository.findById(Long.parseLong(id))
+    public ProductoModel saveProducto(ProductoRequestDTO dto){
+        ProductoModel producto = new ProductoModel();
+        producto.setNombre(dto.getNombre());
+        producto.setDescripcion(dto.getDescripcion());
+        producto.setPrecio(dto.getPrecio());
+        producto.setStock(dto.getStock());
+        
+        producto.setCategoria(categoriaRepository.findById(dto.getIdCategoria())
+        .orElseThrow(() -> new RuntimeException("Categoría obligatoria no encontrada. ID: " + dto.getIdCategoria())));
+
+        producto.setMarca(marcaRepository.findById(dto.getIdMarca())
+        .orElseThrow(() -> new RuntimeException("Marca obligatoria no encontrada. ID: " + dto.getIdMarca())));
+
+        producto.setTalla(tallaRepository.findById(dto.getIdTalla())
+        .orElseThrow(() -> new RuntimeException("Talla obligatoria no encontrada. ID: " + dto.getIdTalla())));
+
+        return productoRepository.save(producto);
+    }
+
+    public ProductoModel updateProducto(String id, ProductoRequestDTO dto) {
+        ProductoModel producto = productoRepository.findById(Long.parseLong(id))
         .orElseThrow(() -> new RuntimeException("No se encontró el producto con ID: " + id));
 
-        if(existingProducto.getIsActive() == null || existingProducto.getIsActive()) {
-            existingProducto.setIsActive(false);
-        } else {
-            existingProducto.setIsActive(true);
+        producto.setNombre(dto.getNombre());
+        producto.setDescripcion(dto.getDescripcion());
+        producto.setPrecio(dto.getPrecio());
+        producto.setStock(dto.getStock());
+
+        if(dto.getIdCategoria() != null) {
+            producto.setCategoria(categoriaRepository.findById(dto.getIdCategoria())
+                .orElseThrow(() -> new RuntimeException("No se encontró la categoría con ID: " + dto.getIdCategoria())));
         }
 
-        return productoRepository.save(existingProducto);
+        if(dto.getIdMarca() != null) {
+            producto.setMarca(marcaRepository.findById(dto.getIdMarca())
+                .orElseThrow(() -> new RuntimeException("No se encontró la marca con ID: " + dto.getIdMarca())));
+        }
+
+        if(dto.getIdTalla() != null) {
+            producto.setTalla(tallaRepository.findById(dto.getIdTalla())
+                .orElseThrow(() -> new RuntimeException("No se encontró la talla con ID: " + dto.getIdTalla())));
+        }
+
+        return productoRepository.save(producto);
+    }
+
+    public String isActiveProducto(String id) {
+        ProductoModel producto = productoRepository.findById(Long.parseLong(id))
+        .orElseThrow(() -> new RuntimeException("No se encontró el producto con ID: " + id));
+
+        producto.setIsActive(!producto.getIsActive());
+        productoRepository.save(producto);
+
+        return producto.getIsActive() ? "Producto activado exitosamente" : "Producto desactivado exitosamente";
     }
 }

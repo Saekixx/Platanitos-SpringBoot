@@ -21,17 +21,23 @@ public class TallaController {
 
     @GetMapping()
     public ResponseEntity<StandarResponse<List<TallaModel>>> allTallas () {
-        List<TallaModel> tallas = tallaService.getAllTallas();
+        try {
+            List<TallaModel> tallas = tallaService.getAllTallas();
 
-        String msg = tallas.isEmpty() ? "No se encontraron tallas" : "Tallas obtenidas exitosamente";
+            StandarResponse<List<TallaModel>> response = new StandarResponse<>(
+                200,
+                "Tallas obtenidas exitosamente",
+                tallas
+            );
 
-        StandarResponse<List<TallaModel>> response = new StandarResponse<List<TallaModel>>(
-            200,
-            msg,
-            tallas
-        );
-
-        return ResponseEntity.status(200).body(response);
-    }
-    
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            StandarResponse<List<TallaModel>> errorResponse = new StandarResponse<>(
+                500,
+                "Error al obtener las tallas: " + e.getMessage(),
+                null
+            );
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    } 
 }
